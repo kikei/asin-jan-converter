@@ -24,3 +24,9 @@ $ docker-compose exec webapp bash
 $ python3 main.py jancode -A B01G6XNQ5A
 ```
 
+## Debug
+
+Mongo Express can be accessed with following url:
+
+http://localhost:8081/
+

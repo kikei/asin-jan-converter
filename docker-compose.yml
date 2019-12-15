@@ -1,0 +1,52 @@
+version: "3.7"
+services:
+  webapp:
+    build: ./webapp
+    volumes:
+      - ./src:/usr/src/app
+      - ./data/webapp:/mnt
+    ports:
+      - "8088:8088"
+    links:
+      - mongodb
+      - tor
+    depends_on:
+      - mongodb
+      - tor
+    tty: true
+    environment:
+      LOG_DIR: /mnt/log
+      MONGO_HOSTNAME: mongodb
+      MONGO_USERNAME: admin
+      MONGO_PASSWORD: admin
+      YAHOO_APP_ID: ${YAHOO_APP_ID}
+      AMAZON_SCRAPE_PROXY: socks5://tor:9050
+  mongodb:
+    image: mongo:4
+    volumes:
+      - ./data/mongodb:/data/db
+      - ./mongodb:/docker-entrypoint-initdb.d
+    restart: always
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: admin
+      MONGO_INITDB_DATABASE: admin
+  mongo-express:
+    image: mongo-express:latest
+    ports:
+      - "8081:8081"
+    links:
+      - mongodb
+    depends_on:
+      - mongodb
+    environment:
+      ME_CONFIG_MONGODB_SERVER: mongodb
+      ME_CONFIG_MONGODB_ENABLE_ADMIN: 'true'
+      ME_CONFIG_MONGODB_ADMINUSERNAME: admin
+      ME_CONFIG_MONGODB_ADMINPASSWORD: admin
+      ME_CONFIG_BASICAUTH_USERNAME: ${ME_CONFIG_BASICAUTH_USERNAME}
+      ME_CONFIG_BASICAUTH_PASSWORD: ${ME_CONFIG_BASICAUTH_PASSWORD}
+  tor:
+    build: ./tor
+    restart: always
+
